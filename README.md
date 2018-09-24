@@ -76,24 +76,31 @@ This runs happily and quickly so the results are run each time:
 ``` r
 bench::mark(iterations = 1, check = FALSE,
             sf = {ac_sf10k = sf::read_sf("ac-10k.geojson")},
-            sp = {ac_sp10k = rgdal::readOGR("ac-10k.geojson")}
+            sp = {ac_sp10k = rgdal::readOGR("ac-10k.geojson", verbose = F)}
 )
-#> OGR data source with driver: GeoJSON 
-#> Source: "/mnt/27bfad9a-3474-4e61-9a43-0156ebc67d67/home/robin/ATFutures/geobench/ac-10k.geojson", layer: "ac-10K"
-#> with 10000 features
-#> It has 1 fields
-#> OGR data source with driver: GeoJSON 
-#> Source: "/mnt/27bfad9a-3474-4e61-9a43-0156ebc67d67/home/robin/ATFutures/geobench/ac-10k.geojson", layer: "ac-10K"
-#> with 10000 features
-#> It has 1 fields
 #> Warning: Some expressions had a GC in every iteration; so filtering is
 #> disabled.
 #> # A tibble: 2 x 10
 #>   expression   min  mean median   max `itr/sec` mem_alloc  n_gc n_itr
 #>   <chr>      <bch> <bch> <bch:> <bch>     <dbl> <bch:byt> <dbl> <int>
-#> 1 sf         256ms 256ms  256ms 256ms      3.90    12.2MB     1     1
-#> 2 sp         898ms 898ms  898ms 898ms      1.11    23.4MB     0     1
+#> 1 sf         237ms 237ms  237ms 237ms     4.23     12.2MB     1     1
+#> 2 sp            1s    1s     1s    1s     0.995    23.4MB     0     1
 #> # ... with 1 more variable: total_time <bch:tm>
+```
+
+``` bash
+pip install fiona
+pip install pytictoc
+```
+
+``` python
+import fiona
+from pytictoc import TicToc
+t = TicToc()
+t.tic()
+s = fiona.open("ac-10k.geojson")
+t.toc()
+#> Elapsed time is 0.094538 seconds.
 ```
 
 ## Benchmark 1: spatial subsetting

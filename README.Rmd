@@ -80,13 +80,27 @@ bench::mark(iterations = 1, check = FALSE,
 
 This runs happily and quickly so the results are run each time:
 
-```{r}
+```{r, message=FALSE}
 bench::mark(iterations = 1, check = FALSE,
             sf = {ac_sf10k = sf::read_sf("ac-10k.geojson")},
-            sp = {ac_sp10k = rgdal::readOGR("ac-10k.geojson")}
+            sp = {ac_sp10k = rgdal::readOGR("ac-10k.geojson", verbose = F)}
 )
 ```
 
+```{r, engine='bash', eval=FALSE}
+pip install fiona
+pip install pytictoc
+```
+
+
+```{r, engine='python'}
+import fiona
+from pytictoc import TicToc
+t = TicToc()
+t.tic()
+s = fiona.open("ac-10k.geojson")
+t.toc()
+```
 
 ## Benchmark 1: spatial subsetting
 
