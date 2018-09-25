@@ -106,7 +106,7 @@ pip3 install rasterio
 
 ```{python}
 import sys
-sys.version
+print(sys.version)
 import geopandas as gpd
 from pytictoc import TicToc
 t = TicToc()

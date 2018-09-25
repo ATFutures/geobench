@@ -92,8 +92,8 @@ bench::mark(iterations = 1, check = FALSE,
 #> # A tibble: 2 x 10
 #>   expression    min   mean median    max `itr/sec` mem_alloc  n_gc n_itr
 #>   <chr>      <bch:> <bch:> <bch:> <bch:>     <dbl> <bch:byt> <dbl> <int>
-#> 1 sf          4.02s  4.02s  4.02s  4.02s    0.249     46.5MB    15     1
-#> 2 sp         13.86s 13.86s 13.86s 13.86s    0.0721      90MB     2     1
+#> 1 sf          5.71s  5.71s  5.71s  5.71s    0.175     46.5MB    15     1
+#> 2 sp         11.43s 11.43s 11.43s 11.43s    0.0875      90MB     2     1
 #> # ... with 1 more variable: total_time <bch:tm>
 ```
 
@@ -105,14 +105,16 @@ pip3 install rasterio
 
 ``` python
 import sys
-sys.version
+print(sys.version)
+#> 3.6.6 (default, Sep 12 2018, 18:26:19) 
+#> [GCC 8.0.1 20180414 (experimental) [trunk revision 259383]]
 import geopandas as gpd
 from pytictoc import TicToc
 t = TicToc()
 t.tic()
 s = gpd.read_file("ac-100K.geojson")
 t.toc()
-#> Elapsed time is 6.033249 seconds.
+#> Elapsed time is 4.711211 seconds.
 ```
 
 ## Benchmark 2: spatial subsetting
@@ -137,7 +139,7 @@ system("lscpu", intern = TRUE)
 #> [12] "Model:               142"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
 #> [13] "Model name:          Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 #> [14] "Stepping:            9"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-#> [15] "CPU MHz:             2296.253"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+#> [15] "CPU MHz:             2700.113"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 #> [16] "CPU max MHz:         3500.0000"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 #> [17] "CPU min MHz:         400.0000"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 #> [18] "BogoMIPS:            5808.00"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
