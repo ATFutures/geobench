@@ -31,6 +31,14 @@ It will likely evolve over time.
 
 The code in this section only needs to run once, or at least each time a new dataset is added to the benchmarks.
 
+Python was set-up to run `python3`.
+This can be done at the system level or, if you're running these benchmarks from RStudio by adding the following line to `.Renviron` (which can be edited with `usethis::edit_r_environ()`):
+
+```
+RETICULATE_PYTHON=/usr/bin/python3
+```
+
+
 ### Large point dataset covering UK
 
 ```{r, eval=FALSE}
@@ -45,6 +53,7 @@ sf::write_sf(ac_sf[1:1e4, ], "ac-10K.geojson")  # 1 MB .geojson file
 sf::write_sf(ac_sf[1:1e3, ], "ac-1K.geojson")   # 0.1 MB .geojson file
 zip("ac.geojson.zip", "ac.geojson") # 14 MB
 piggyback::pb_upload(file = "ac.geojson.zip")
+piggyback::pb_upload(file = "ac-100K.geojson")
 piggyback::pb_upload(file = "ac-10K.geojson")
 ```
 
@@ -54,6 +63,7 @@ piggyback::pb_upload(file = "ac-10K.geojson")
 if(!file.exists("ac.geojson")) {
   download.file("https://github.com/ATFutures/geobench/releases/download/0.0.1/ac.geojson.zip", "ac.geojson.zip")
   unzip("ac.geojson.zip")
+  download.file("https://github.com/ATFutures/geobench/releases/download/0.0.1/ac-100k.geojson", "ac-100k.geojson")
   download.file("https://github.com/ATFutures/geobench/releases/download/0.0.1/ac-10k.geojson", "ac-10k.geojson")
 }
 ```
@@ -76,40 +86,46 @@ bench::mark(iterations = 1, check = FALSE,
 #> 2 {...            2m      2m       2m      2m   0.00835     1.2GB 
 ```
 
-### 10k sample
+### 100K sample
 
 This runs happily and quickly so the results are run each time:
 
 ```{r, message=FALSE}
 bench::mark(iterations = 1, check = FALSE,
-            sf = {ac_sf10k = sf::read_sf("ac-10k.geojson")},
-            sp = {ac_sp10k = rgdal::readOGR("ac-10k.geojson", verbose = F)}
+            sf = {ac_sf10k = sf::read_sf("ac-100K.geojson")},
+            sp = {ac_sp10k = rgdal::readOGR("ac-100K.geojson", verbose = F)}
 )
 ```
 
 ```{r, engine='bash', eval=FALSE}
-pip install fiona
-pip install pytictoc
+pip3 install geopandas
+pip3 install pytictoc
+pip3 install rasterio
 ```
 
 
-```{r, engine='python'}
-import fiona
+```{python}
+import sys
+sys.version
+import geopandas as gpd
 from pytictoc import TicToc
 t = TicToc()
 t.tic()
-s = fiona.open("ac-10k.geojson")
+s = gpd.read_file("ac-100K.geojson")
 t.toc()
 ```
 
-## Benchmark 1: spatial subsetting
+## Benchmark 2: spatial subsetting
 
 Work in progress...
 
 ```{r}
-library(sf)
-library(sp)
 ```
 
+## System info
+
+```{r}
+system("lscpu", intern = TRUE)
+```
 
 

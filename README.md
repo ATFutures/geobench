@@ -24,6 +24,13 @@ benchmarks. It will likely evolve over time.
 The code in this section only needs to run once, or at least each time a
 new dataset is added to the benchmarks.
 
+Python was set-up to run `python3`. This can be done at the system level
+or, if you’re running these benchmarks from RStudio by adding the
+following line to `.Renviron` (which can be edited with
+`usethis::edit_r_environ()`):
+
+    RETICULATE_PYTHON=/usr/bin/python3
+
 ### Large point dataset covering UK
 
 ``` r
@@ -38,6 +45,7 @@ sf::write_sf(ac_sf[1:1e4, ], "ac-10K.geojson")  # 1 MB .geojson file
 sf::write_sf(ac_sf[1:1e3, ], "ac-1K.geojson")   # 0.1 MB .geojson file
 zip("ac.geojson.zip", "ac.geojson") # 14 MB
 piggyback::pb_upload(file = "ac.geojson.zip")
+piggyback::pb_upload(file = "ac-100K.geojson")
 piggyback::pb_upload(file = "ac-10K.geojson")
 ```
 
@@ -47,6 +55,7 @@ piggyback::pb_upload(file = "ac-10K.geojson")
 if(!file.exists("ac.geojson")) {
   download.file("https://github.com/ATFutures/geobench/releases/download/0.0.1/ac.geojson.zip", "ac.geojson.zip")
   unzip("ac.geojson.zip")
+  download.file("https://github.com/ATFutures/geobench/releases/download/0.0.1/ac-100k.geojson", "ac-100k.geojson")
   download.file("https://github.com/ATFutures/geobench/releases/download/0.0.1/ac-10k.geojson", "ac-10k.geojson")
 }
 ```
@@ -69,46 +78,74 @@ bench::mark(iterations = 1, check = FALSE,
 #> 2 {...            2m      2m       2m      2m   0.00835     1.2GB 
 ```
 
-### 10k sample
+### 100K sample
 
 This runs happily and quickly so the results are run each time:
 
 ``` r
 bench::mark(iterations = 1, check = FALSE,
-            sf = {ac_sf10k = sf::read_sf("ac-10k.geojson")},
-            sp = {ac_sp10k = rgdal::readOGR("ac-10k.geojson", verbose = F)}
+            sf = {ac_sf10k = sf::read_sf("ac-100K.geojson")},
+            sp = {ac_sp10k = rgdal::readOGR("ac-100K.geojson", verbose = F)}
 )
 #> Warning: Some expressions had a GC in every iteration; so filtering is
 #> disabled.
 #> # A tibble: 2 x 10
-#>   expression   min  mean median   max `itr/sec` mem_alloc  n_gc n_itr
-#>   <chr>      <bch> <bch> <bch:> <bch>     <dbl> <bch:byt> <dbl> <int>
-#> 1 sf         237ms 237ms  237ms 237ms     4.23     12.2MB     1     1
-#> 2 sp            1s    1s     1s    1s     0.995    23.4MB     0     1
+#>   expression    min   mean median    max `itr/sec` mem_alloc  n_gc n_itr
+#>   <chr>      <bch:> <bch:> <bch:> <bch:>     <dbl> <bch:byt> <dbl> <int>
+#> 1 sf          4.02s  4.02s  4.02s  4.02s    0.249     46.5MB    15     1
+#> 2 sp         13.86s 13.86s 13.86s 13.86s    0.0721      90MB     2     1
 #> # ... with 1 more variable: total_time <bch:tm>
 ```
 
 ``` bash
-pip install fiona
-pip install pytictoc
+pip3 install geopandas
+pip3 install pytictoc
+pip3 install rasterio
 ```
 
 ``` python
-import fiona
+import sys
+sys.version
+import geopandas as gpd
 from pytictoc import TicToc
 t = TicToc()
 t.tic()
-s = fiona.open("ac-10k.geojson")
+s = gpd.read_file("ac-100K.geojson")
 t.toc()
-#> Elapsed time is 0.094538 seconds.
+#> Elapsed time is 6.033249 seconds.
 ```
 
-## Benchmark 1: spatial subsetting
+## Benchmark 2: spatial subsetting
 
 Work in progress…
 
+## System info
+
 ``` r
-library(sf)
-#> Linking to GEOS 3.6.2, GDAL 2.2.3, proj.4 4.9.3
-library(sp)
+system("lscpu", intern = TRUE)
+#>  [1] "Architecture:        x86_64"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+#>  [2] "CPU op-mode(s):      32-bit, 64-bit"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+#>  [3] "Byte Order:          Little Endian"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+#>  [4] "CPU(s):              4"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#>  [5] "On-line CPU(s) list: 0-3"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+#>  [6] "Thread(s) per core:  2"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#>  [7] "Core(s) per socket:  2"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#>  [8] "Socket(s):           1"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#>  [9] "NUMA node(s):        1"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#> [10] "Vendor ID:           GenuineIntel"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+#> [11] "CPU family:          6"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#> [12] "Model:               142"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+#> [13] "Model name:          Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+#> [14] "Stepping:            9"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+#> [15] "CPU MHz:             2296.253"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+#> [16] "CPU max MHz:         3500.0000"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+#> [17] "CPU min MHz:         400.0000"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+#> [18] "BogoMIPS:            5808.00"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+#> [19] "Virtualisation:      VT-x"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+#> [20] "L1d cache:           32K"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+#> [21] "L1i cache:           32K"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+#> [22] "L2 cache:            256K"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+#> [23] "L3 cache:            4096K"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+#> [24] "NUMA node0 CPU(s):   0-3"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+#> [25] "Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb invpcid_single pti ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx rdseed adx smap clflushopt intel_pt xsaveopt xsavec xgetbv1 xsaves dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp"
 ```
