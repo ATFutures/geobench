@@ -92,6 +92,7 @@ This runs happily and quickly so the results are run each time:
 
 ```{r, message=FALSE}
 bench::mark(iterations = 1, check = FALSE,
+            geosf = {ac_gsf = geojsonsf::geojson_sf("ac-100K.geojson")},
             sf = {ac_sf10k = sf::read_sf("ac-100K.geojson")},
             sp = {ac_sp10k = rgdal::readOGR("ac-100K.geojson", verbose = F)}
 )

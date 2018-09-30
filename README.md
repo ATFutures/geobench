@@ -84,17 +84,19 @@ This runs happily and quickly so the results are run each time:
 
 ``` r
 bench::mark(iterations = 1, check = FALSE,
+            geosf = {ac_gsf = geojsonsf::geojson_sf("ac-100K.geojson")},
             sf = {ac_sf10k = sf::read_sf("ac-100K.geojson")},
             sp = {ac_sp10k = rgdal::readOGR("ac-100K.geojson", verbose = F)}
 )
 #> Warning: Some expressions had a GC in every iteration; so filtering is
 #> disabled.
-#> # A tibble: 2 x 10
-#>   expression    min   mean median    max `itr/sec` mem_alloc  n_gc n_itr
-#>   <chr>      <bch:> <bch:> <bch:> <bch:>     <dbl> <bch:byt> <dbl> <int>
-#> 1 sf          5.71s  5.71s  5.71s  5.71s    0.175     46.5MB    15     1
-#> 2 sp         11.43s 11.43s 11.43s 11.43s    0.0875      90MB     2     1
-#> # ... with 1 more variable: total_time <bch:tm>
+#> # A tibble: 3 x 10
+#>   expression     min    mean  median     max `itr/sec` mem_alloc  n_gc
+#>   <chr>      <bch:t> <bch:t> <bch:t> <bch:t>     <dbl> <bch:byt> <dbl>
+#> 1 geosf      327.2ms 327.2ms 327.2ms 327.2ms    3.06      16.6MB     1
+#> 2 sf           4.21s   4.21s   4.21s   4.21s    0.238     46.6MB     8
+#> 3 sp          10.37s  10.37s  10.37s  10.37s    0.0965      90MB     2
+#> # ... with 2 more variables: n_itr <int>, total_time <bch:tm>
 ```
 
 ``` bash
@@ -114,7 +116,7 @@ t = TicToc()
 t.tic()
 s = gpd.read_file("ac-100K.geojson")
 t.toc()
-#> Elapsed time is 4.711211 seconds.
+#> Elapsed time is 3.859898 seconds.
 ```
 
 ## Benchmark 2: spatial subsetting
@@ -139,7 +141,7 @@ system("lscpu", intern = TRUE)
 #> [12] "Model:               142"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
 #> [13] "Model name:          Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 #> [14] "Stepping:            9"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-#> [15] "CPU MHz:             2700.113"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+#> [15] "CPU MHz:             2889.441"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 #> [16] "CPU max MHz:         3500.0000"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 #> [17] "CPU min MHz:         400.0000"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 #> [18] "BogoMIPS:            5808.00"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
