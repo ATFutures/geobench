@@ -42,19 +42,19 @@ RETICULATE_PYTHON=/usr/bin/python3
 ### Large point dataset covering UK
 
 ```{r, eval=FALSE}
-stplanr::dl_stats19()
-ac = stplanr::read_stats19_ac() # 214 mb compressed data
-ac = ac[!is.na(ac$Latitude), ]
-ac_sf = sf::st_as_sf(ac[ c("Accident_Severity", "Longitude", "Latitude")], coords = c("Longitude", "Latitude"))
-sf::write_sf(ac_sf, "ac.geojson")               # 228 MB .geojson file
-sf::write_sf(ac_sf[1:1e6, ], "ac-M.geojson")    # 139 MB .geojson file
-sf::write_sf(ac_sf[1:1e5, ], "ac-100K.geojson") # 14 MB .geojson file
-sf::write_sf(ac_sf[1:1e4, ], "ac-10K.geojson")  # 1 MB .geojson file
-sf::write_sf(ac_sf[1:1e3, ], "ac-1K.geojson")   # 0.1 MB .geojson file
+ac = stats19::get_stats19(year = 2022, output_format = "sf")
+sf::write_sf(ac, "ac.geojson", delete_dsn = TRUE)
+fs::file_size("ac.geojson")
+# 147 MB .geojson file
+sf::write_sf(ac[1:1e6, ], "ac-M.geojson", delete_dsn = TRUE)  
+sf::write_sf(ac[1:1e5, ], "ac-100K.geojson", delete_dsn = TRUE)
+sf::write_sf(ac[1:1e4, ], "ac-10K.geojson", delete_dsn = TRUE)
+sf::write_sf(ac[1:1e3, ], "ac-1K.geojson", delete_dsn = TRUE)
 zip("ac.geojson.zip", "ac.geojson") # 14 MB
 piggyback::pb_upload(file = "ac.geojson.zip")
 piggyback::pb_upload(file = "ac-100K.geojson")
 piggyback::pb_upload(file = "ac-10K.geojson")
+reticulate::py_install("pytictoc")
 ```
 
 ## Download data
